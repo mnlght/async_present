@@ -26,7 +26,7 @@ duration: 35min
 
 # Async Protocols
 
-WS + socket io, gRPC
+WS + socket io, redis
 
 <div @click="$slidev.nav.next" class="mt-12 py-1" hover:bg="white op-10">
   Начать презентацию <carbon:arrow-right />
@@ -48,9 +48,32 @@ transition: fade-out
 - <div v-click>Websocket, устройство под капотом</div>
 - <div v-click>Socket io</div>
 - <div v-click>Io redis</div>
-- <div v-click>gRPC</div>
 <br>
 <br>
+
+---
+transition: fade-out
+---
+
+# Для чего нужен websocket?
+
+Кейсы real-time приложений
+<br>
+<br>
+- <div v-click>Чат и уведомления</div>
+- <div v-click>Браузерные игры</div>
+- <div v-click>Совместное редактирование документов и файлов в браузере</div>
+- <div v-click>Мониторинг и логирование</div>
+- <div v-click>Финтех и графики</div>
+<br>
+<br>
+
+---
+layout: center
+class: text-center
+---
+
+# Реализуем простой сервак с поддержкой ws протокола
 
 ---
 transition: fade-out
@@ -408,3 +431,43 @@ transition: fade-out
 ws
 - <div v-click><span v-mark.red="1">Масштабирование</span></div>
 - <div v-click>Иными словами, <span v-mark.red="2">общее</span> хранилище всех клиентов, событий и структур, которое шарилось бы между серваками бэка</div>
+---
+transition: fade-out
+---
+# IO redis / Redis adapter
+redis
+- <div v-click>Проблема ясна, socket io сам по себе оставляет множественные сервера <span v-mark.red="1">глухими</span></div>
+- <div v-click>Что делает redis adapter?</div>
+- <div v-click>Он создает в redis специальные каналы, на которые подписываются сервера socket io</div>
+---
+transition: fade-out
+---
+# IO redis / Redis adapter (каналы)
+Каналы бывают
+- <div v-click>Канал на каждый namespace</div>
+- <div v-click>Канал на каждый namespace + на каждую комнату (room)</div>
+---
+transition: fade-out
+---
+# IO redis / Redis adapter (как это работает)
+В общем виде
+- <div v-click>У нас есть 2 сервера А и Б.</div>
+- <div v-click>Клиент 1 присоединяется к namespace В. Он добавляется в массив клиентов сервера Б.</div>
+- <div v-click>Клиент 2 тоже присоединяется к namespace В. Он добавляется в массив клиентов сервера А.</div>
+- <div v-click>Клиент 1 отсылает сообщение, которое согласно нашей бизнес-логике должен получить Клиент 2.</div>
+- <div v-click>Сообщение принимает Сервер Б. У него в массиве подключенных клиентов нет Клиента 2, поэтому он сразу же пересылает сообщение в канал redis.</div>
+- <div v-click>Подписанный на канал Сервер А получает сообщение и отправляет его Клиенту 2.</div>
+- <div v-click>Успех!</div>
+---
+transition: fade-out
+---
+# Лайфхак для PHP
+От Ивана Поддубного
+- <div v-click>Зная протокол каналов, можно заставлять event модель дергаться из php</div>
+- <div v-click>Добавляя сообщения в нужный канал с нужным форматом</div>
+---
+layout: center
+class: text-center
+---
+
+# Конец
