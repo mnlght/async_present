@@ -351,5 +351,60 @@ transition: fade-out
 transition: fade-out
 ---
 # Кто решает за нас эти проблемы?
-И имеет нужный бойлерплейт
+И это...
 - <div v-click>Библиотека <span v-mark.red="2">socket.io</span></div>
+
+---
+transition: fade-out
+---
+# Socket.IO
+Это инструмент...
+- <div v-click><span v-mark.red="1">Socket.IO</span> - это библиотека, которая делает всю рутинную работу (реконнект, группировка клиентов по комнатам, броадкасты, события, парсинг сообщений) и предоставляет api</div>
+- <div v-click>Сам websocket - это протокол, основа и база</div>
+- <div v-click>Выбор между чистым ws и socket.io - это всегда дилемму между производительностью и контролем vs скорость разработки и удобство</div>
+- <div v-click>В вебпрактике вам в <span v-mark.red="4">99.999%</span> случаев будет достаточно socket.io</div>
+---
+transition: fade-out
+---
+# Что конктретно он умеет делать?
+socket.io
+- <div v-click>Подключение и реконнект</div>
+- <div v-click>Событийный "роутинг" при отправке и получении сообщений</div>
+- <div v-click>Группировка клиентов</div>
+- <div v-click>Рассылка (широковещательная отправка сообщения всем клиентам)</div>
+---
+transition: fade-out
+---
+# Как выглядит код при использовании socket.io (сервер)
+
+```go
+import (
+    socketio "github.com/googollee/go-socket.io" 
+)
+
+func main() {
+    server := socketio.NewServer(nil)
+    server.OnConnect("/", func(s socketio.Conn) error {
+        log.Println("Connected:", s.ID())
+        return nil
+    })
+    server.OnEvent("/", "new message", func(s socketio.Conn, msg string) {
+        log.Println("Message:", msg)
+        s.BroadcastTo("/", "chat message", msg)
+    })
+    server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+        log.Println("Disconnected:", reason)
+    })
+    go server.Serve()
+    defer server.Close()
+    http.Handle("/socket.io/", server)
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+---
+transition: fade-out
+---
+# Какие проблемы могут возникнуть с ws серверами в базовой реализации?
+ws
+- <div v-click><span v-mark.red="1">Масштабирование</span></div>
+- <div v-click>Иными словами, <span v-mark.red="2">общее</span> хранилище всех клиентов, событий и структур, которое шарилось бы между серваками бэка</div>
